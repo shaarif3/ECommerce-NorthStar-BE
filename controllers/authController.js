@@ -211,7 +211,7 @@ const registerUser = async (req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-        const { firstName, lastName, email, phone, password, confirm_password } =
+        const { firstName, lastName, email, phone, password, confirm_password, role } =
             req.body;
         const userexists = await User.findOne({ email });
         if (userexists) {
@@ -226,13 +226,14 @@ const registerUser = async (req, res) => {
             email,
             phone,
             password,
+            role
         });
         await user.save();
         console.log("User-Created", user);
         const token = generateToken(user);
         return res
             .status(200)
-            .json({ message: "User Created Successfully", token });
+            .json({ message: "User Created Successfully", token: "Bearer " + token });
     } catch (err) {
         console.log("Error", err);
         return res.status(500).send({ msg: "Server Error" });
@@ -247,7 +248,7 @@ const loginUser = async (req, res) => {
             await user.save();
             console.log("LoggedIn-user", user);
             let token = generateToken(user._id);
-            return res.status(200).json({ message: "Log in Successfull", token });
+            return res.status(200).json({ message: "Log in Successfull", token: "Bearer " + token });
         } else {
             return res.status(401).json({ msg: "Invalid Credentials" });
         }
@@ -286,6 +287,8 @@ const editProfileUser = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
+    console.log(req.user, "shaka")
+
     try {
         const user = await User.findById(req.user._id).select("-password");
         console.log("UserId", req.user._id);
@@ -361,7 +364,7 @@ const userRecoverPassword = async (req, res) => {
 };
 
 const userVerifyRecoverCode = async (req, res) => {
-    
+
     const { code } = req.body;
     console.log("req", req.body);
     try {

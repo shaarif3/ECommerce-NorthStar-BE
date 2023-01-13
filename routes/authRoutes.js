@@ -1,26 +1,8 @@
 import express from 'express';
 import { check, validationResult } from 'express-validator'; // we use express-validator for validation
-import authMiddleware from "../middleware/authMiddleware.js";
 const router = express.Router();
 import { authFunc } from "../controllers/authController.js"
-// import {
-//     registerAdmin,
-//     loginAdmin,
-//     getAdminProfile,
-//     adminRecoverPassword,
-//     adminVerifyRecoverCode,
-//     adminResetPassword,
-//     verifyAndResetPassword,
-//     editProfile,
-//     registerUser,
-//     loginUser,
-//     editProfileUser,
-//     getUserProfile,
-//     verifyAndResetPasswordUser,
-//     userRecoverPassword,
-//     userVerifyRecoverCode,
-//     userResetPassword,
-// } from "../controllers/authController.js";
+import passport from 'passport';
 
 const { registerAdmin,
     loginAdmin,
@@ -61,7 +43,7 @@ router.post(
     loginAdmin
 );
 
-router.get("/getProfile", authMiddleware, getAdminProfile);
+router.get("/getProfile", passport.authenticate('jwt', { session: false }), getAdminProfile);
 
 router.post(
     "/adminRecoverPassword",
@@ -87,12 +69,12 @@ router.post(
         check("email", "email address is required").isEmail(),
         check("password", "password is required").exists(),
         check("existingpassword", "existingpassword is required").exists(),
-        authMiddleware,
+        passport.authenticate('jwt', { session: false }),
     ],
     verifyAndResetPassword
 );
 
-router.post("/editProfile", authMiddleware, editProfile);
+router.post("/editProfile", passport.authenticate('jwt', { session: false }), editProfile);
 
 router.post(
     "/registerUser",
@@ -117,7 +99,7 @@ router.post(
     loginUser
 );
 
-router.get("/getUserProfile", authMiddleware, getUserProfile);
+router.get("/getUserProfile", passport.authenticate('jwt', { session: false }), getUserProfile);
 
 router.post(
     "/userRecoverPassword",
@@ -143,12 +125,12 @@ router.post(
         check("email", "email address is required").isEmail(),
         check("password", "password is required").exists(),
         check("existingpassword", "existingpassword is required").exists(),
-        authMiddleware,
+        passport.authenticate('jwt', { session: false }),
     ],
     verifyAndResetPasswordUser
 );
 
-router.post("/editUserProfile", authMiddleware, editProfileUser);
+router.post("/editUserProfile", passport.authenticate('jwt', { session: false }), editProfileUser);
 
 // module.exports = router;
 export default router;
