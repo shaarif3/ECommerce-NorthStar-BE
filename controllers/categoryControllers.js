@@ -77,6 +77,7 @@ const categoryDetails = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         await Category.findByIdAndRemove(req.params.id);
+
         res.status(200).json({ msg: "Category was successfully deleted" });
     } catch (err) {
         if (err.kind === "ObjectId") {

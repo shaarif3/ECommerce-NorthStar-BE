@@ -78,7 +78,7 @@ const adminRecoverPassword = async (req, res) => {
         await generateEmail(email, "VirtualRetreat- Password Reset", html);
         res
             .status(201)
-            .json({ msg: "The recovery mail was sent to your registered email" });
+            .json({ msg: "The recovery mail was sent to your registered email!" });
     } catch (err) {
         console.log("Err");
         return res.status(401).json({ msg: "Server Error" });
@@ -95,7 +95,7 @@ const adminVerifyRecoverCode = async (req, res) => {
         }
         const reset = await Reset.findOne({ code });
         if (reset) {
-            return res.status(200).json({ msg: "Recovery code Accepted" });
+            return res.status(200).json({ msg: "Recovery code Accepted!" });
         } else {
             return res.status(401).json({ msg: "Invalid Code or Email" });
         }
@@ -114,7 +114,7 @@ const adminResetPassword = async (req, res) => {
         console.log("Reset");
         const { email, code, password, confirm_password } = req.body;
         if (!comparePassword(password, confirm_password))
-            return res.status(400).json({ message: "Password does not match" });
+            return res.status(400).json({ message: "Password does not match!" });
         const reset = await Reset.findOne({ email, code });
         console.log("reset", reset);
         if (!reset)
@@ -127,7 +127,7 @@ const adminResetPassword = async (req, res) => {
             const token = generateToken(updatedadmin._id);
             return res
                 .status(200)
-                .json({ msg: "password reseted successfully", token });
+                .json({ msg: "Password reseted successfully!", token });
         }
     } catch (err) {
         console.log("Error", err);
@@ -148,7 +148,7 @@ const verifyAndResetPassword = async (req, res) => {
             console.log("block1");
             if (!comparePassword(newpassword, confirm_password)) {
                 console.log("block2");
-                return res.status(400).json({ message: "Password does not match" });
+                return res.status(400).json({ message: "Password does not match!" });
             } else {
                 console.log("block3");
                 admin.password = newpassword;
@@ -190,7 +190,7 @@ const editProfile = async (req, res) => {
         admin.userImage = user_image ? user_image : admin.userImage;
         await admin.save();
         await res.status(200).json({
-            msg: "Profile Updated Successfully",
+            msg: "Profile Updated Successfully!",
             _id: admin._id,
             firstName: admin.firstName,
             lastName: admin.lastName,
@@ -215,10 +215,10 @@ const registerUser = async (req, res) => {
             req.body;
         const userexists = await User.findOne({ email });
         if (userexists) {
-            return res.status(400).json({ msg: "User Already Exists" });
+            return res.status(400).json({ msg: "User Already Exists!" });
         }
         if (!comparePassword(password, confirm_password)) {
-            return res.status(400).json({ msg: "Password does not match" });
+            return res.status(400).json({ msg: "Password does not match!" });
         }
         const user = new User({
             firstName,
@@ -233,7 +233,7 @@ const registerUser = async (req, res) => {
         const token = generateToken(user);
         return res
             .status(200)
-            .json({ message: "User Created Successfully", token: "Bearer " + token });
+            .json({ message: "User Created Successfully!", token: "Bearer " + token });
     } catch (err) {
         console.log("Error", err);
         return res.status(500).send({ msg: "Server Error" });
@@ -248,7 +248,7 @@ const loginUser = async (req, res) => {
             await user.save();
             console.log("LoggedIn-user", user);
             let token = generateToken(user._id);
-            return res.status(200).json({ message: "Log in Successfull", token: "Bearer " + token });
+            return res.status(200).json({ message: "Log in Successfull!", token: "Bearer " + token });
         } else {
             return res.status(401).json({ msg: "Invalid Credentials" });
         }
@@ -272,7 +272,7 @@ const editProfileUser = async (req, res) => {
         user.userImage = user_image ? user_image : user.userImage;
         await user.save();
         await res.status(200).json({
-            msg: "Profile Updated Successfully",
+            msg: "Profile Updated Successfully!",
             _id: user._id,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -311,14 +311,14 @@ const verifyAndResetPasswordUser = async (req, res) => {
             console.log("block1");
             if (!comparePassword(newpassword, confirm_password)) {
                 console.log("block2");
-                return res.status(400).json({ message: "Password does not match" });
+                return res.status(400).json({ message: "Password does not match!" });
             } else {
                 console.log("block3");
                 user.password = newpassword;
                 await user.save();
                 console.log("user", user);
                 res.status(201).json({
-                    msg: "Password Updated Successfully",
+                    msg: "Password Updated Successfully!",
                     _id: user._id,
                     firstName: user.firstName,
                     lastName: user.lastName,
@@ -331,7 +331,7 @@ const verifyAndResetPasswordUser = async (req, res) => {
         } else {
             console.log("block4");
 
-            return res.status(401).json({ message: "Wrong Password" });
+            return res.status(401).json({ message: "Wrong Password!" });
         }
     } catch (error) {
         console.log("error", error);
@@ -352,11 +352,11 @@ const userRecoverPassword = async (req, res) => {
         }
         const code = generateCode();
         await createResetToken(email, code);
-        const html = `<p> your recovery code ${code} with this code you code you can recover your pw</p>`;
+        const html = `<p> your recovery code <b>${code}</b>. With this code you can recover your password.</p>`;
         await generateEmail(email, "VirtualRetreat- Password Reset", html);
         res
             .status(201)
-            .json({ msg: "The recovery mail was sent to your registered email" });
+            .json({ msg: "The recovery mail was sent to your registered email." });
     } catch (err) {
         console.log("Err");
         return res.status(401).json({ msg: "Server Error" });
