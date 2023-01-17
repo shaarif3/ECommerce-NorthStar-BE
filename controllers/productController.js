@@ -4,6 +4,39 @@ import Category from "../models/CategoryModel.js";
 import Mongoose from "mongoose";
 
 
+
+
+
+
+const getallproducts = async (req, res) => {
+    try {
+        const product = await Product.find().lean();
+        await res.status(200).json({
+            product,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: err.toString(),
+        });
+    }
+};
+
+const searchProduct = async (req, res) => {
+    console.log(req.params.term, "searched term")
+    try {
+        let product = await Product.find({ productName: { $regex: req.params.term, $options: "i" } });
+        if (product) {
+            return res.status(200).json({ product });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: err.toString(),
+        });
+    }
+};
+
 const addProduct = async (req, res) => {
     const {
         category,
@@ -24,52 +57,23 @@ const addProduct = async (req, res) => {
     try {
         const product = new Product({
             category,
-            attribute,
             productName,
             status,
             price,
             instock,
             description,
             usage,
+            size,
             // productImage: reciepts,
-            size
         });
-        console.log("Product Added", product)
-
-        // if (product) {
-        //     const cat = await Category.findOne({ _id: category });
-        //     cat.count = cat.count + 1;
-        //     const updatedCat = await cat.save();
-        //     console.log("UpdatedCat", updatedCat);
-        //     const productCreate = await product.save();
-        //     console.log("ProductCreated", productCreate);
-        //     res.status(200).json({ msg: "product Created", productCreate });
-        // }
-    } catch (err) {
-        return res.status(500).json({ msg: "Server Error" });
-
-    }
-};
-
-const getallproducts = async (req, res) => {
-    try {
-        const product = await Product.find().lean();
-        await res.status(200).json({
-            product,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message: err.toString(),
-        });
-    }
-};
-
-const searchProduct = async (req, res) => {
-    try {
-        let product = await Product.find({ productName: req.query.searchParam });
         if (product) {
-            return res.status(200).json({ product });
+            const cat = await Category.findOne({ _id: category });
+            cat.count = cat.count + 1;
+            const updatedCat = await cat.save();
+            console.log("UpdatedCat", updatedCat);
+            const productCreate = await product.save();
+            console.log("ProductCreated", productCreate);
+            res.status(200).json({ msg: "product Created", productCreate });
         }
     } catch (err) {
         console.log(err);
@@ -79,19 +83,24 @@ const searchProduct = async (req, res) => {
     }
 };
 
-
-
 const editProduct = async (req, res) => {
     // // console.log("Old Product", req.body);
     // return;
-    const { category, attribute, name, status, price, instock, description } =
+    const { category,
+        productName,
+        status,
+        price,
+        instock,
+        description,
+        usage,
+        size } =
         req.body;
     console.log("req.body", req.body);
-    let _reciepts = [];
-    const reciepts = [];
-    _reciepts = req.files.reciepts;
-    console.log("_reciepts", _reciepts);
-    _reciepts.forEach((img) => reciepts.push(img.path));
+    // let _reciepts = [];
+    // const reciepts = [];
+    // _reciepts = req.files.reciepts;
+    // console.log("_reciepts", _reciepts);
+    // _reciepts.forEach((img) => reciepts.push(img.path));
     try {
         const product = await Product.findById(req.params.id);
         console.log("Before Edit");
@@ -100,17 +109,20 @@ const editProduct = async (req, res) => {
         if (product) {
             console.log("req.status", req.body.status);
             product.category = category ? category : product.category;
-            product.attribute = attribute ? attribute : attribute.category;
-            product.name = name ? name : product.name;
+            // product.attribute = attribute ? attribute : attribute.category;
+            product.productName = productName ? productName : product.productName;
             product.status = status == "true" ? true : false;
             product.price = price ? price : product.price;
             product.instock = instock ? instock : product.instock;
             product.description = description ? description : product.description;
-            product.productImage = reciepts ? reciepts : product.productImage;
+            product.usage = usage ? usage : product.usage;
+            product.size = size ? size : product.size;
+
+            // product.productImage = reciepts ? reciepts : product.productImage;
         }
-        console.log("type of productImage", typeof product.productImage);
-        console.log("type of receipts", typeof reciepts);
-        console.log("type of status", typeof status);
+        // console.log("type of productImage", typeof product.productImage);
+        // console.log("type of receipts", typeof reciepts);
+        // console.log("type of status", typeof status);
         await product.save();
         return res.json({ product });
     } catch (err) {
@@ -122,9 +134,10 @@ const editProduct = async (req, res) => {
 
 const productDetails = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate(
-            "category attribute"
-        );
+        const product = await Product.findById(req.params.id)
+        // .populate(
+        //     "category attribute"
+        // );
         console.log("product", product);
         return res.status(200).json({ product });
     } catch (err) {
@@ -211,16 +224,16 @@ const toggleStatus = async (req, res) => {
 
 const getProductsByCategory = async (req, res) => {
     try {
-        const products = await Product.paginate(
+        const products = await Product.find(
             {
                 category: req.params.category,
             },
-            {
-                page: req.query.page ? req.query.page : "1",
-                limit: req.query.perPage ? req.query.perPage : "10",
-                lean: true,
-            }
-        );
+            // {
+            //     page: req.query.page ? req.query.page : "1",
+            //     limit: req.query.perPage ? req.query.perPage : "10",
+            //     lean: true,
+            // }
+        ).lean();
         return res.status(200).json({
             products,
         });
@@ -232,8 +245,6 @@ const getProductsByCategory = async (req, res) => {
         }
     }
 };
-
-
 
 export const productFunc = {
     getallproducts,

@@ -3,10 +3,11 @@ const router = express.Router();
 import { productFunc } from "../controllers/productController.js"
 import passport from "passport";
 
-const { addProduct,
+const { getallproducts,
+    addProduct,
+    productDetails,
     logs,
     toggleStatus,
-    productDetails,
     searchProduct,
     editProduct,
     getProductsByCategory, } = productFunc;
@@ -16,7 +17,8 @@ router.post("/editProduct/:id", passport.authenticate('jwt', { session: false })
 router.get("/toggleActiveStatus/:id", passport.authenticate('jwt', { session: false }), toggleStatus);
 router.get("/getProductDetails/:id", productDetails);
 router.get("/logs", passport.authenticate('jwt', { session: false }), logs);
-router.get("/searchProduct", searchProduct);
+router.get("/searchProduct/:term", searchProduct);
 router.get("/getProductByCategory/:category", getProductsByCategory);
+router.get("/getAllProducts", getallproducts);
 export default router;
 
